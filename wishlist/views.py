@@ -23,6 +23,14 @@ def show_wishlist(request):
     }
     return render(request, "wishlist.html", context)
 
+def show_ajax(request):
+    ctx = {
+        "nama": "Mervin",
+        "last_login": request.COOKIES["last_login"],
+    }
+    return render(request, "wishlist_ajax.html", ctx)
+
+
 def show_xml(request):
     data = BarangWishlist.objects.all()
     return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
@@ -39,6 +47,25 @@ def show_json_by_id(request, id):
 def show_xml_by_id(request, id):
     data = BarangWishlist.objects.filter(pk=id)
     return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
+
+def create_wishlist(request):
+    if request.method == "POST":
+        nama_barang = request.POST.get("nama_barang")
+        harga_barang = request.POST.get("harga_barang")
+        deskripsi = request.POST.get("deskripsi")
+
+        new_barang = BarangWishlist(
+            nama_barang=nama_barang,
+            harga_barang=harga_barang,
+            deskripsi=deskripsi,
+        )
+        new_barang.save()
+        return HttpResponse(
+            serializers.serialize("json", [new_barang]),
+            content_type="application/json",
+        )
+
+    return HttpResponse("Invalid method", status_code=405)
 
 def register(request):
     form = UserCreationForm()
